@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Data Analyzer - Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .feature {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .feature h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .feature p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .tech-stack {
+            margin: 40px 0;
+        }
+        
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .tech-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        
+        .instructions {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .instructions h3 {
+            color: #1976d2;
+            margin-bottom: 15px;
+        }
+        
+        .instructions ol {
+            color: #333;
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .code {
+            background: #263238;
+            color: #4fc3f7;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        ol {
+            padding-left: 20px;
+        }
+        
+        li {
+            margin: 10px 0;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .status.working {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.fixed {
+            background: #cce5ff;
+            color: #004085;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">📊</div>
+        <h1>Financial Data Analyzer</h1>
+        <p class="subtitle">Professional Full-Stack Financial Analysis Platform</p>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>📈 Dynamic Dashboard</h3>
+                <p>Real-time financial metrics with interactive charts. Shows revenue, expenses, and profit analysis based on uploaded data.</p>
+            </div>
+            <div class="feature">
+                <h3>📤 Smart Data Upload</h3>
+                <p>Drag-and-drop interface supporting CSV and Excel files. Automatic processing and validation with instant feedback.</p>
+            </div>
+            <div class="feature">
+                <h3>💰 Revenue Analysis</h3>
+                <p>Detailed revenue breakdowns by category, channel analysis, and monthly trends with consistent data visualization.</p>
+            </div>
+            <div class="feature">
+                <h3>🤖 AI-Powered Insights</h3>
+                <p>OpenAI integration for natural language queries and automated financial analysis with intelligent recommendations.</p>
+            </div>
+        </div>
+        
+        <div class="tech-stack">
+            <h2>🛠️ Technology Stack</h2>
+            <div class="tech-grid">
+                <div class="tech-item">FastAPI</div>
+                <div class="tech-item">React 18</div>
+                <div class="tech-item">Material-UI</div>
+                <div class="tech-item">Recharts</div>
+                <div class="tech-item">SQLAlchemy</div>
+                <div class="tech-item">PostgreSQL</div>
+                <div class="tech-item">Redis</div>
+                <div class="tech-item">OpenAI</div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>🚀 Quick Start Guide (Windows)</h3>
+            <div class="warning">
+                <strong>⚠️ Current Status:</strong> Application runs in development mode outside Docker due to container startup issues.
+            </div>
+            
+            <h4>Prerequisites:</h4>
+            <ul>
+                <li>Python 3.8+ installed</li>
+                <li>Node.js 16+ and npm installed</li>
+                <li>Git for version control</li>
+            </ul>
+            
+            <h4>Step 1: Backend Setup</h4>
+            <ol>
+                <li><strong>Navigate to backend directory:</strong>
+                    <div class="code">
+cd "c:\Users\Arvind Kumar\CascadeProjects\financial-analyzer-fullstack\backend"
+                    </div>
+                </li>
+                <li><strong>Install Python dependencies:</strong>
+                    <div class="code">
+pip install fastapi uvicorn python-multipart sqlalchemy asyncpg pydantic openai redis celery pandas numpy python-dotenv httpx psycopg2-binary
+                    </div>
+                </li>
+                <li><strong>Start the backend server:</strong>
+                    <div class="code">
+python simple_main.py
+                    </div>
+                    <div class="success">
+                        ✅ Backend will run on: <strong>http://127.0.0.1:8000</strong>
+                    </div>
+                </li>
+            </ol>
+            
+            <h4>Step 2: Frontend Setup</h4>
+            <ol>
+                <li><strong>Open NEW terminal and navigate to frontend:</strong>
+                    <div class="code">
+cd "c:\Users\Arvind Kumar\CascadeProjects\financial-analyzer-fullstack\frontend"
+                    </div>
+                </li>
+                <li><strong>Install Node.js dependencies:</strong>
+                    <div class="code">
+npm install
+                    </div>
+                </li>
+                <li><strong>Start the React development server:</strong>
+                    <div class="code">
+npm start
+                    </div>
+                    <div class="success">
+                        ✅ Frontend will run on: <strong>http://localhost:3001</strong>
+                    </div>
+                </li>
+            </ol>
+            
+            <h4>Step 3: Access the Application</h4>
+            <ul>
+                <li><strong>Frontend UI:</strong> <a href="http://localhost:3001" target="_blank">http://localhost:3001</a></li>
+                <li><strong>Backend API:</strong> <a href="http://127.0.0.1:8000" target="_blank">http://127.0.0.1:8000</a></li>
+                <li><strong>API Documentation:</strong> <a href="http://127.0.0.1:8000/docs" target="_blank">http://127.0.0.1:8000/docs</a></li>
+            </ul>
+        </div>
+        
+        <div class="instructions">
+            <h3>📋 Current Implementation Status</h3>
+            <ul>
+                <li>✅ Backend FastAPI server <span class="status working">WORKING</span></li>
+                <li>✅ React frontend with Material-UI <span class="status working">WORKING</span></li>
+                <li>✅ File upload functionality <span class="status fixed">FIXED</span></li>
+                <li>✅ Dynamic dashboard with real data <span class="status fixed">FIXED</span></li>
+                <li>✅ Revenue analysis with consistent data <span class="status fixed">FIXED</span></li>
+                <li>✅ In-memory data storage for demo <span class="status working">WORKING</span></li>
+                <li>⚠️ Docker deployment <span class="status" style="background: #fff3cd; color: #856404;">PENDING</span></li>
+                <li>⚠️ Database persistence <span class="status" style="background: #fff3cd; color: #856404;">PENDING</span></li>
+            </ul>
+        </div>
+        
+        <div class="instructions">
+            <h3>📁 Project Structure</h3>
+            <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; margin: 15px 0; overflow-x: auto;">
+                <pre style="margin: 0; font-family: 'Courier New', Consolas, monospace; font-size: 14px; line-height: 1.5; color: #333; white-space: pre; overflow-x: auto;">
+financial-analyzer-fullstack/
+├── backend/                    <span style="color: #666;"># FastAPI backend</span>
+│   ├── simple_main.py          <span style="color: #666;"># Main server file (CURRENT)</span>
+│   ├── main.py                 <span style="color: #666;"># Full FastAPI implementation</span>
+│   ├── requirements.txt        <span style="color: #666;"># Python dependencies</span>
+│   ├── Dockerfile              <span style="color: #666;"># Backend container config</span>
+│   └── app/                    <span style="color: #666;"># Application modules</span>
+│       ├── api/                <span style="color: #666;"># API endpoints</span>
+│       ├── core/               <span style="color: #666;"># Configuration</span>
+│       ├── models/             <span style="color: #666;"># Database models</span>
+│       ├── schemas/            <span style="color: #666;"># Pydantic schemas</span>
+│       └── services/           <span style="color: #666;"># Business logic</span>
+│
+├── frontend/                   <span style="color: #666;"># React frontend</span>
+│   ├── src/
+│   │   ├── App.js              <span style="color: #666;"># Main app component</span>
+│   │   ├── index.js            <span style="color: #666;"># Entry point</span>
+│   │   ├── pages/              <span style="color: #666;"># Page components</span>
+│   │   │   ├── Dashboard/      <span style="color: #666;"># Main dashboard</span>
+│   │   │   ├── DataUpload/     <span style="color: #666;"># File upload interface</span>
+│   │   │   ├── Analysis/       <span style="color: #666;"># Revenue analysis</span>
+│   │   │   ├── AIAnalysis/     <span style="color: #666;"># AI insights</span>
+│   │   │   ├── DataQuality/    <span style="color: #666;"># Data quality checks</span>
+│   │   │   └── Settings/       <span style="color: #666;"># App settings</span>
+│   │   └── components/         <span style="color: #666;"># Reusable components</span>
+│   ├── public/                 <span style="color: #666;"># Static assets</span>
+│   ├── package.json            <span style="color: #666;"># Node.js dependencies</span>
+│   ├── package-lock.json       <span style="color: #666;"># Dependency lock file</span>
+│   └── Dockerfile              <span style="color: #666;"># Frontend container config</span>
+│
+├── preview/                    <span style="color: #666;"># Documentation</span>
+│   └── index.html              <span style="color: #666;"># This preview file</span>
+├── .venv/                      <span style="color: #666;"># Python virtual environment</span>
+├── docker-compose.yml          <span style="color: #666;"># Multi-service setup</span>
+├── .env                        <span style="color: #666;"># Environment variables</span>
+└── README.md                   <span style="color: #666;"># Detailed documentation</span>
+                </pre>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>🔧 Troubleshooting</h3>
+            <div class="warning">
+                <strong>Common Issues:</strong>
+                <ul>
+                    <li><strong>Port conflicts:</strong> Backend uses 8000, Frontend uses 3001</li>
+                    <li><strong>Module not found:</strong> Ensure all dependencies are installed</li>
+                    <li><strong>CORS errors:</strong> Make sure both servers are running</li>
+                    <li><strong>Upload issues:</strong> Check file format (CSV/Excel only)</li>
+                    <li><strong>Git push rejected:</strong> Pull latest changes first with <code>git pull origin main</code></li>
+                    <li><strong>Merge conflicts:</strong> Resolve conflicts manually, then commit</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>📚 Git Version Control</h3>
+            <h4>Initial Setup (if not done):</h4>
+            <div class="code">
+# Initialize git repository (if needed)
+git init
+
+# Add remote repository
+git remote add origin &lt;your-repository-url&gt;
+
+# Configure user (if not done globally)
+git config user.name "Your Name"
+git config user.email "your.email@example.com"
+            </div>
+            
+            <h4>Daily Git Workflow:</h4>
+            <ol>
+                <li><strong>Check current status:</strong>
+                    <div class="code">
+git status
+                    </div>
+                </li>
+                <li><strong>Pull latest changes:</strong>
+                    <div class="code">
+git pull origin main
+                    </div>
+                </li>
+                <li><strong>Add your changes:</strong>
+                    <div class="code">
+# Add specific files
+git add filename.js
+
+# Or add all changes
+git add .
+                    </div>
+                </li>
+                <li><strong>Commit your changes:</strong>
+                    <div class="code">
+git commit -m "Description of your changes"
+                    </div>
+                </li>
+                <li><strong>Push to repository:</strong>
+                    <div class="code">
+git push origin main
+                    </div>
+                </li>
+            </ol>
+            
+            <h4>Useful Git Commands:</h4>
+            <div class="code">
+# View commit history
+git log --oneline
+
+# Create and switch to new branch
+git checkout -b feature-branch-name
+
+# Switch between branches
+git checkout main
+git checkout feature-branch-name
+
+# Merge branch to main
+git checkout main
+git merge feature-branch-name
+
+# Discard local changes
+git checkout -- filename.js
+
+# View differences
+git diff
+            </div>
+        </div>
+        
+        <div class="success">
+            <strong>🎉 Ready to Use!</strong><br>
+            Your Financial Data Analyzer is fully functional with dynamic data, file uploads, and real-time analytics. 
+            Upload your financial data and see instant insights!
+        </div>
+    </div>
+</body>
+</html>
