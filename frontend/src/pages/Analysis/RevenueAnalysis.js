@@ -46,6 +46,7 @@ import {
 import { useQuery } from 'react-query';
 import numeral from 'numeral';
 import axios from 'axios';
+import jsPDF from 'jspdf';
 
 // Mock data for revenue analysis
 const mockRevenueData = {
@@ -85,8 +86,23 @@ const mockRevenueData = {
 };
 
 // Helper functions to generate revenue analysis data from API records
-const generateRevenueMonthlyTrends = (revenueRecords, totalRevenue) => {
+const generateRevenueMonthlyTrends = (revenueRecords, totalRevenue, period = 'monthly') => {
   if (!revenueRecords || revenueRecords.length === 0) {
+    // Generate different data based on period
+    if (period === 'quarterly') {
+      return [
+        { month: 'Q1', revenue: 0, transactions: 0 },
+        { month: 'Q2', revenue: 0, transactions: 0 },
+        { month: 'Q3', revenue: 0, transactions: 0 },
+        { month: 'Q4', revenue: 0, transactions: 0 }
+      ];
+    } else if (period === 'yearly') {
+      return [
+        { month: '2022', revenue: 0, transactions: 0 },
+        { month: '2023', revenue: 0, transactions: 0 },
+        { month: '2024', revenue: 0, transactions: 0 }
+      ];
+    }
     return [
       { month: 'Jan', revenue: 0, transactions: 0 },
       { month: 'Feb', revenue: 0, transactions: 0 },
@@ -97,16 +113,26 @@ const generateRevenueMonthlyTrends = (revenueRecords, totalRevenue) => {
     ];
   }
   
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-  const avgMonthlyRevenue = totalRevenue / 6;
-  const avgMonthlyTransactions = revenueRecords.length / 6;
+  let periods, avgRevenue;
   
-  return months.map((month, index) => {
+  if (period === 'quarterly') {
+    periods = ['Q1', 'Q2', 'Q3', 'Q4'];
+    avgRevenue = totalRevenue / 4;
+  } else if (period === 'yearly') {
+    periods = ['2022', '2023', '2024'];
+    avgRevenue = totalRevenue / 3;
+  } else {
+    periods = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+    avgRevenue = totalRevenue / 6;
+  }
+  const avgTransactions = revenueRecords.length / periods.length;
+  
+  return periods.map((month, index) => {
     const variation = 1 + (Math.sin(index) * 0.4); // ±40% variation
     return {
       month,
-      revenue: Math.round(avgMonthlyRevenue * variation),
-      transactions: Math.round(avgMonthlyTransactions * variation)
+      revenue: Math.round(avgRevenue * variation),
+      transactions: Math.round(avgTransactions * variation)
     };
   });
 };
@@ -204,10 +230,19 @@ const generateProfitTrendData = (totalRevenue, totalExpenses) => {
   });
 };
 
+// Helper function for export (alias for existing function)
+const generateRevenueByChannel = (records, totalRevenue) => {
+  return generateRevenueByChannelData(totalRevenue).map(item => ({
+    channel: item.channel,
+    amount: item.amount
+  }));
+};
+
 function RevenueAnalysis() {
   const [selectedPeriod, setSelectedPeriod] = useState('monthly');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [anchorEl, setAnchorEl] = useState(null);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   const { data: revenueData, isLoading, error } = useQuery(
     ['revenueAnalysis', selectedPeriod, selectedCategory],
@@ -234,7 +269,7 @@ function RevenueAnalysis() {
           topCategoryAmount: Math.round((summary.total_revenue || 0) * 0.5),
           growthRate: 15.2
         },
-        monthlyTrends: generateRevenueMonthlyTrends(revenueRecords, summary.total_revenue),
+        monthlyTrends: generateRevenueMonthlyTrends(revenueRecords, summary.total_revenue, selectedPeriod),
         revenueByCategory: generateRevenueByCategoryData(revenueRecords, summary.total_revenue),
         revenueByChannel: generateRevenueByChannelData(summary.total_revenue),
         topProducts: generateTopProductsData(revenueRecords),
@@ -256,9 +291,166 @@ function RevenueAnalysis() {
   };
 
   const exportData = (format) => {
-    // Export functionality
-    console.log(`Exporting revenue data as ${format}`);
+    try {
+      const timestamp = new Date().toISOString().split('T')[0];
+      const filename = `revenue-analysis-${timestamp}`;
+      
+      if (format === 'csv') {
+        // Export revenue data as CSV
+        const csvData = [
+          ['Revenue Analysis Report', '', ''],
+          ['Generated on', new Date().toLocaleDateString(), ''],
+          ['Period', selectedPeriod, ''],
+          ['', '', ''],
+          ['Summary Metrics', '', ''],
+          ['Metric', 'Value', 'Growth'],
+          ['Total Revenue', `$${numeral(revenueData?.totalRevenue || 0).format('0,0')}`, `${revenueData?.revenueGrowth || 0}%`],
+          ['Average Transaction', `$${numeral(revenueData?.avgTransaction || 0).format('0,0')}`, ''],
+          ['Total Transactions', numeral(revenueData?.totalTransactions || 0).format('0,0'), ''],
+          ['', '', ''],
+          ['Revenue Trends', '', ''],
+          ['Period', 'Revenue', 'Transactions'],
+          ...generateRevenueMonthlyTrends(revenueData?.records || [], revenueData?.totalRevenue || 0, selectedPeriod).map(item => [
+            item.month,
+            `$${numeral(item.revenue).format('0,0')}`,
+            numeral(item.transactions).format('0,0')
+          ])
+        ];
+        
+        const csvContent = csvData.map(row => row.join(',')).join('\n');
+        downloadFile(csvContent, `${filename}.csv`, 'text/csv');
+        
+      } else if (format === 'excel') {
+        // For Excel, use enhanced CSV format
+        const csvData = [
+          ['Revenue Analysis Report', '', '', ''],
+          ['Generated on', new Date().toLocaleDateString(), '', ''],
+          ['Period Filter', selectedPeriod, '', ''],
+          ['', '', '', ''],
+          ['Key Performance Indicators', '', '', ''],
+          ['Metric', 'Value', 'Growth Rate', 'Status'],
+          ['Total Revenue', `$${numeral(revenueData?.totalRevenue || 0).format('0,0')}`, `${revenueData?.revenueGrowth || 0}%`, revenueData?.revenueGrowth > 0 ? 'Growing' : 'Declining'],
+          ['Average Transaction Value', `$${numeral(revenueData?.avgTransaction || 0).format('0,0')}`, '', 'Stable'],
+          ['Total Transactions', numeral(revenueData?.totalTransactions || 0).format('0,0'), '', 'Active'],
+          ['', '', '', ''],
+          ['Revenue by Channel', '', '', ''],
+          ['Channel', 'Amount', 'Percentage', 'Trend'],
+          ...generateRevenueByChannel(revenueData?.records || [], revenueData?.totalRevenue || 0).map(item => [
+            item.channel,
+            `$${numeral(item.amount).format('0,0')}`,
+            `${((item.amount / (revenueData?.totalRevenue || 1)) * 100).toFixed(1)}%`,
+            'Stable'
+          ])
+        ];
+        
+        const csvContent = csvData.map(row => row.join(',')).join('\n');
+        downloadFile(csvContent, `${filename}.xlsx`, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        
+      } else if (format === 'pdf') {
+        // Generate proper PDF using jsPDF
+        const doc = new jsPDF();
+        
+        // Set up PDF styling
+        doc.setFontSize(20);
+        doc.setTextColor(40, 40, 40);
+        
+        // Title
+        doc.text('REVENUE ANALYSIS REPORT', 20, 30);
+        
+        // Date and Period
+        doc.setFontSize(12);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 45);
+        doc.text(`Period: ${selectedPeriod}`, 20, 55);
+        
+        // Key Metrics Section
+        doc.setFontSize(16);
+        doc.setTextColor(40, 40, 40);
+        doc.text('KEY METRICS', 20, 75);
+        
+        doc.setFontSize(12);
+        doc.setTextColor(60, 60, 60);
+        let yPos = 90;
+        
+        const metrics = [
+          { label: 'Total Revenue', value: `$${numeral(revenueData?.totalRevenue || 0).format('0,0')}` },
+          { label: 'Revenue Growth', value: `${revenueData?.revenueGrowth || 0}%` },
+          { label: 'Average Transaction', value: `$${numeral(revenueData?.avgTransaction || 0).format('0,0')}` },
+          { label: 'Total Transactions', value: numeral(revenueData?.totalTransactions || 0).format('0,0') }
+        ];
+        
+        metrics.forEach(metric => {
+          doc.text(`• ${metric.label}: ${metric.value}`, 25, yPos);
+          yPos += 15;
+        });
+        
+        // Revenue Trends Section
+        yPos += 10;
+        doc.setFontSize(16);
+        doc.setTextColor(40, 40, 40);
+        doc.text('REVENUE TRENDS', 20, yPos);
+        
+        yPos += 20;
+        doc.setFontSize(11);
+        doc.setTextColor(60, 60, 60);
+        
+        const trends = generateRevenueMonthlyTrends(revenueData?.records || [], revenueData?.totalRevenue || 0, selectedPeriod);
+        trends.forEach(item => {
+          doc.text(`• ${item.month}: $${numeral(item.revenue).format('0,0')} (${numeral(item.transactions).format('0,0')} transactions)`, 25, yPos);
+          yPos += 12;
+        });
+        
+        // Revenue by Channel Section
+        yPos += 10;
+        doc.setFontSize(16);
+        doc.setTextColor(40, 40, 40);
+        doc.text('REVENUE BY CHANNEL', 20, yPos);
+        
+        yPos += 20;
+        doc.setFontSize(11);
+        doc.setTextColor(60, 60, 60);
+        
+        const channels = generateRevenueByChannel(revenueData?.records || [], revenueData?.totalRevenue || 0);
+        channels.forEach(item => {
+          const percentage = revenueData?.totalRevenue > 0 ? ((item.amount / revenueData.totalRevenue) * 100).toFixed(1) : 0;
+          doc.text(`• ${item.channel}: $${numeral(item.amount).format('0,0')} (${percentage}%)`, 25, yPos);
+          yPos += 12;
+        });
+        
+        // Save the PDF
+        doc.save(`${filename}.pdf`);
+      }
+      
+      // Show success message
+      setSnackbar({
+        open: true,
+        message: `Revenue analysis exported successfully as ${format.toUpperCase()}!`,
+        severity: 'success'
+      });
+      
+    } catch (error) {
+      console.error('Export error:', error);
+      setSnackbar({
+        open: true,
+        message: 'Failed to export data. Please try again.',
+        severity: 'error'
+      });
+    }
+    
     handleMenuClose();
+  };
+  
+  // Helper function to download files
+  const downloadFile = (content, filename, mimeType) => {
+    const blob = new Blob([content], { type: mimeType });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   };
 
   if (isLoading) return <Typography>Loading...</Typography>;

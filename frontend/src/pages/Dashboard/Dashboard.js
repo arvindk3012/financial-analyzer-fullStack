@@ -167,12 +167,12 @@ function ChartCard({ title, children, actions }) {
 const generateMonthlyTrends = (records, totalRevenue, totalExpenses) => {
   if (!records || records.length === 0) {
     return [
-      { month: 'Jan', revenue: 0, expenses: 0 },
-      { month: 'Feb', revenue: 0, expenses: 0 },
-      { month: 'Mar', revenue: 0, expenses: 0 },
-      { month: 'Apr', revenue: 0, expenses: 0 },
-      { month: 'May', revenue: 0, expenses: 0 },
-      { month: 'Jun', revenue: 0, expenses: 0 }
+      { month: 'Jan', revenue: 0, expenses: 0, profit: 0 },
+      { month: 'Feb', revenue: 0, expenses: 0, profit: 0 },
+      { month: 'Mar', revenue: 0, expenses: 0, profit: 0 },
+      { month: 'Apr', revenue: 0, expenses: 0, profit: 0 },
+      { month: 'May', revenue: 0, expenses: 0, profit: 0 },
+      { month: 'Jun', revenue: 0, expenses: 0, profit: 0 }
     ];
   }
   
@@ -189,7 +189,8 @@ const generateMonthlyTrends = (records, totalRevenue, totalExpenses) => {
     return {
       month,
       revenue: Math.round(avgMonthlyRevenue * revenueVariation),
-      expenses: Math.round(avgMonthlyExpenses * expenseVariation)
+      expenses: Math.round(avgMonthlyExpenses * expenseVariation),
+      profit: Math.round((avgMonthlyRevenue * revenueVariation) - (avgMonthlyExpenses * expenseVariation))
     };
   });
 };
@@ -214,19 +215,19 @@ const generateRevenueByCategory = (records, totalRevenue) => {
 const generateExpensesByType = (records, totalExpenses) => {
   if (!records || records.length === 0) {
     return [
-      { category: 'Marketing', amount: 0 },
-      { category: 'Operations', amount: 0 },
-      { category: 'Salaries', amount: 0 },
-      { category: 'Utilities', amount: 0 }
+      { name: 'Marketing', value: 0 },
+      { name: 'Operations', value: 0 },
+      { name: 'Salaries', value: 0 },
+      { name: 'Utilities', value: 0 }
     ];
   }
   
   // Distribute total expenses consistently across categories
   return [
-    { category: 'Marketing', amount: Math.round(totalExpenses * 0.15) },   // 15% of total
-    { category: 'Operations', amount: Math.round(totalExpenses * 0.25) },  // 25% of total
-    { category: 'Salaries', amount: Math.round(totalExpenses * 0.45) },    // 45% of total
-    { category: 'Utilities', amount: Math.round(totalExpenses * 0.15) }    // 15% of total
+    { name: 'Marketing', value: Math.round(totalExpenses * 0.15) },   // 15% of total
+    { name: 'Operations', value: Math.round(totalExpenses * 0.25) },  // 25% of total
+    { name: 'Salaries', value: Math.round(totalExpenses * 0.45) },    // 45% of total
+    { name: 'Utilities', value: Math.round(totalExpenses * 0.15) }    // 15% of total
   ];
 };
 
@@ -251,11 +252,20 @@ function Dashboard() {
       const revenueByCategory = generateRevenueByCategory(records, summary.total_revenue);
       const expensesByType = generateExpensesByType(records, summary.total_expenses);
       
+      // Calculate profit margin
+      const totalRevenue = summary.total_revenue || 0;
+      const totalExpenses = summary.total_expenses || 0;
+      const netProfit = summary.net_profit || (totalRevenue - totalExpenses);
+      const profitMargin = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : 0;
+      
       return {
         summary: {
-          totalRevenue: summary.total_revenue || 0,
-          totalExpenses: summary.total_expenses || 0,
-          netProfit: summary.net_profit || 0,
+          totalRevenue,
+          totalExpenses,
+          netProfit,
+          profitMargin: parseFloat(profitMargin),
+          revenueGrowth: 12.5, // Fixed growth rate for demo
+          expenseGrowth: -5.2, // Fixed expense reduction for demo
           totalRecords: summary.total_records || 0,
           totalDatasets: summary.total_datasets || 0,
           status: summary.status || 'no_data'
@@ -363,7 +373,7 @@ function Dashboard() {
             change={2.3}
             icon={<Analytics sx={{ fontSize: 40 }} />}
             color="#96ceb4"
-            onClick={() => navigate('/analysis/profit')}
+            onClick={() => navigate('/analysis/expenses')}
           />
         </Grid>
       </Grid>
